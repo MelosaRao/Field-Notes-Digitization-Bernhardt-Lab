@@ -145,6 +145,75 @@ Possible future additions:
 * Add a simple upload/run/download button interface in Colab.
 * Add validation for expected site names.
 
+
+# Excel Field Notes Extraction
+
+In addition to the PDF/Qwen workflow, this repository includes a lightweight command-line utility for extracting algae observations from Excel field note files.
+
+## Expected Excel Format
+
+The script expects a worksheet named:
+
+```text
+field notes
+```
+
+The following cells are used:
+
+| Location | Description     |
+| -------- | --------------- |
+| G3       | Collection date |
+| A8:A18   | Site names      |
+| H8:H18   | Remarks         |
+
+The script extracts:
+
+* Date
+* Site
+* Algae presence
+* Original remarks text
+
+and exports the results to a CSV file.
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+Process all Excel files in a folder:
+
+```bash
+python extract_excel_field_notes.py ./excel_files
+```
+
+Specify a custom output file:
+
+```bash
+python extract_excel_field_notes.py ./excel_files -o algae_results.csv
+```
+
+## Output
+
+Example CSV:
+
+```csv
+source_file,date,site,algae_present,evidence_text
+field_notes.xlsx,4/9/2018,WS-1,True,Algae d/s
+field_notes.xlsx,4/9/2018,WS-2,False,
+field_notes.xlsx,4/9/2018,WS-3,True,ALGAE
+```
+
+## Notes
+
+* The script searches all `.xlsx` files in the supplied folder.
+* Dates are exported in `M/D/YYYY` format.
+* Empty remarks are treated as no algae observation.
+* The script preserves the original remarks text in the output CSV for review.
+
 ## Author
 
 Developed by Melosa Rao for field notes digitization work associated with Bernhardt Lab.
+

@@ -1,0 +1,104 @@
+import argparse
+import os
+from pathlib import Path
+
+import pandas as pd
+
+
+def algae_present(text):
+    if pd.isna(text):
+        return False
+
+    text = str(text).lower()
+    return "algae" in text or "algal" in text
+
+
+def process_excel_file(excel_path):
+    df_raw = pd.read_excel(
+        excel_path,
+        sheet_name="field notes",
+        header=None
+    )
+
+    # G3 -> pandas row 2, col 6
+    date_collected = df_raw.iloc[2, 6]
+
+    if pd.notna(date_collected):
+        dt = pd.to_datetime(date_collected)
+
+        date_collected = (
+            f"{dt.month}/{dt.day}/{dt.year}"
+        )
+
+    records = []
+
+    # A8:A18 and H8:H18
+    for row_idx in range(7, 18):
+        site = df_raw.iloc[row_idx, 0]
+        remarks = df_raw.iloc[row_idx, 7]
+
+        if pd.isna(site):
+            continue
+
+        records.append({
+            "source_file": os.path.basename(excel_path),
+            "date": date_collected,
+            "site": str(site).strip(),
+            "algae_present": algae_present(remarks),
+            "evidence_text": "" if pd.isna(remarks) else str(remarks).strip()
+        })
+
+    return records
+
+
+def process_folder(input_folder, output_csv):
+    input_folder = Path(input_folder)
+
+    excel_files = sorted(input_folder.glob("*.xlsx"))
+
+    if not excel_files:
+        raise FileNotFoundError(f"No Excel files found in {input_folder}")
+
+    all_rows = []
+
+    for excel_file in excel_files:
+        print(f"Processing: {excel_file.name}")
+
+        try:
+            rows = process_excel_file(excel_file)
+            all_rows.extend(rows)
+
+        except Exception as e:
+            print(f"Failed: {excel_file.name} | {e}")
+
+    df = pd.DataFrame(all_rows)
+    df.to_csv(output_csv, index=False)
+
+    print(f"\nSaved output to: {output_csv}")
+    print(f"Total rows: {len(df)}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Extract algae mentions from Excel field notes."
+    )
+
+    parser.add_argument(
+        "input_folder",
+        help="Path to folder containing Excel files"
+    )
+
+    parser.add_argument(
+        "-o",
+        "--output",
+        default="algae_excel_results.csv",
+        help="Output CSV path"
+    )
+
+    args = parser.parse_args()
+
+    process_folder(args.input_folder, args.output)
+
+
+if __name__ == "__main__":
+    main()
