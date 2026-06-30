@@ -32,10 +32,11 @@ source_file,date,site,algae_present,evidence_text
 
 ```text
 Field-Notes-Digitization-Bernhardt-Lab/
-├── qwen_test.ipynb              # Main Colab notebook using Qwen2.5-VL
-├── test_paddle_ocr.py           # PaddleOCR test script
-├── paddle+preprocessing.py      # PaddleOCR preprocessing experiment
-├── test_easy_ocr.py             # EasyOCR test script
+├── qwen_test_with_validation.ipynb # Main Colab notebook using Qwen2.5-VL
+├── qwen_test.ipynb                 # Colab notebook using Qwen2.5-VL without validation scripts
+├── test_paddle_ocr.py              # PaddleOCR test script
+├── paddle+preprocessing.py         # PaddleOCR preprocessing experiment
+├── test_easy_ocr.py                # EasyOCR test script
 ├── .gitignore
 └── README.md
 ```
@@ -53,7 +54,8 @@ The notebook:
 5. Sends each page image to Qwen2.5-VL.
 6. Extracts date, site, algae presence, and evidence text.
 7. Appends all rows into a single pandas DataFrame.
-8. Exports the final result to `algae_results.csv`.
+8. Performs a validation check and flags any rows that require human review
+9. Exports the final result to `algae_results.csv`.
 
 ## Requirements
 
